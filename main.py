@@ -45,3 +45,15 @@ async def generate(request: Request, file: UploadFile = File(...)):
     except Exception as e:
         print("Error occurred:", str(e))
         return templates.TemplateResponse("tools.html", {"request": request, "error": "An error occurred. Check terminal for details."})
+
+# Basic route to check if app is loading
+@app.get("/")
+async def home(request: Request):
+    print("The server is running!")  # This will appear in the Render logs if it's working
+    return HTMLResponse(content="<h1>Server is running!</h1>", status_code=200)
+
+# Serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Setup Jinja templates
+templates = Jinja2Templates(directory="templates")
