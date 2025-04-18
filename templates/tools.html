@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>AI Quiz Generator</h1>
+<form action="/generate" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".pdf,.docx" required>
+    <button type="submit">Generate Quiz</button>
+</form>
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+{% endblock %}
