@@ -3,21 +3,23 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-
 from utils.file_parser import extract_text_from_pdf, extract_text_from_docx
-from utils.ai_utils import generate_quiz_from_text, answer_question_from_text, analyze_student_text, teach_me_subject
+from utils.ai_utils import generate_quiz_from_text, analyze_student_text, teach_me_subject
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
+
 @app.get("/tools", response_class=HTMLResponse)
 async def tools(request: Request):
     return templates.TemplateResponse("tools.html", {"request": request})
+
 
 @app.post("/generate", response_class=HTMLResponse)
 async def generate(request: Request, subject: str = Form(...), file: UploadFile = File(...)):
@@ -29,13 +31,13 @@ async def generate(request: Request, subject: str = Form(...), file: UploadFile 
         else:
             return templates.TemplateResponse("tools.html", {"request": request, "error": "Unsupported file type"})
 
-        prompt = f"Génère un quiz de 5 questions pour le Bac en {subject}, basé sur le texte suivant :\n\n{text}"
         quiz = generate_quiz_from_text(text, subject)
         return templates.TemplateResponse("quiz.html", {"request": request, "quiz": quiz})
 
     except Exception as e:
         print("Quiz error:", str(e))
         return templates.TemplateResponse("tools.html", {"request": request, "error": "An error occurred in quiz generation."})
+
 
 @app.post("/chat", response_class=HTMLResponse)
 async def chat(
@@ -45,7 +47,6 @@ async def chat(
     subject: str = Form(...)
 ):
     try:
-        # Extract text from uploaded file
         if chat_file.content_type == "application/pdf":
             text = extract_text_from_pdf(chat_file)
         elif chat_file.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
@@ -56,7 +57,6 @@ async def chat(
                 "error": "Unsupported file type"
             })
 
-        # Generate AI explanation or answer
         answer = teach_me_subject(subject, f"Leçon:\n{text}\n\nQuestion:\n{question}")
         return templates.TemplateResponse("tools.html", {
             "request": request,
@@ -70,6 +70,7 @@ async def chat(
             "error": "An error occurred while answering your question."
         })
 
+
 @app.post("/canevas", response_class=HTMLResponse)
 async def canevas(request: Request, text: str = Form(...)):
     try:
@@ -78,6 +79,7 @@ async def canevas(request: Request, text: str = Form(...)):
     except Exception as e:
         print("Canevas error:", str(e))
         return templates.TemplateResponse("tools.html", {"request": request, "error": "An error occurred in text analysis."})
+
 
 @app.get("/subject-ai", response_class=HTMLResponse)
 async def subject_ai(request: Request):
