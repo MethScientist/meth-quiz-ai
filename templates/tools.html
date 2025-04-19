@@ -1,11 +1,86 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>AI Quiz Generator</h1>
-<form action="/generate" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".pdf,.docx" required>
-    <button type="submit">Generate Quiz</button>
-</form>
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+
+<h1 class="text-3xl font-bold mb-6 text-center text-green-700 dark:text-green-400">AI Learning Tools for BAC</h1>
+
+<!-- Subject Dropdown -->
+<div class="mb-6">
+    <label for="globalSubject" class="block font-medium text-lg">Choose a Subject:</label>
+    <select id="globalSubject" name="subject" class="mt-1 p-2 border rounded w-full max-w-md">
+        <option value="maths">Mathématiques</option>
+        <option value="physics">Physique</option>
+        <option value="science">Sciences</option>
+        <option value="history_geo">Histoire-Géographie</option>
+        <option value="civic">Enseignement Moral et Civique</option>
+        <option value="french">Français</option>
+        <option value="english">Anglais</option>
+        <option value="arabic">Arabe</option>
+        <option value="spanish">Espagnol</option>
+        <option value="scientific">Enseignement Scientifique</option>
+        <option value="philosophy">Philosophie</option>
+    </select>
+</div>
+
+<!-- === Quiz Section === -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-10">
+    <h2 class="text-xl font-semibold mb-4">🎯 Generate a Quiz</h2>
+    <form action="/generate" method="post" enctype="multipart/form-data" class="space-y-4">
+        <input type="hidden" name="subject" class="subject-input">
+        <input type="file" name="file" accept=".pdf,.docx" class="p-2 border rounded w-full" required>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Generate Quiz</button>
+    </form>
+</div>
+
+<!-- === Chatbot Section === -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-10">
+    <h2 class="text-xl font-semibold mb-4">💬 Ask the AI about a Lesson</h2>
+    <form action="/chat" method="post" enctype="multipart/form-data" class="space-y-4">
+        <input type="hidden" name="subject" class="subject-input">
+        <input type="file" name="chat_file" accept=".pdf,.docx" class="p-2 border rounded w-full" required>
+        <div>
+            <label for="question" class="block font-medium">Your question:</label>
+            <textarea id="question" name="question" rows="3" class="p-2 border rounded w-full" required></textarea>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ask</button>
+    </form>
+
+    {% if chat_response %}
+        <div class="mt-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
+            <h3 class="font-semibold text-green-700 dark:text-green-300 mb-2">AI's Response:</h3>
+            <p>{{ chat_response }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- === Canevas Section === -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-semibold mb-4">📝 Canevas Feedback</h2>
+    <form action="/canevas" method="post" class="space-y-4">
+        <input type="hidden" name="subject" class="subject-input">
+        <label for="text" class="block font-medium">Write anything you want help with:</label>
+        <textarea id="text" name="text" rows="8" class="p-2 border rounded w-full" required></textarea>
+        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Analyze</button>
+    </form>
+
+    {% if canevas_feedback %}
+        <div class="mt-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
+            <h3 class="font-semibold text-green-700 dark:text-green-300 mb-2">AI's Feedback:</h3>
+            <p>{{ canevas_feedback }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript to sync subject dropdown with hidden inputs -->
+<script>
+    const globalSelector = document.getElementById('globalSubject');
+    const hiddenInputs = document.querySelectorAll('.subject-input');
+
+    function syncSubjectInputs() {
+        hiddenInputs.forEach(input => input.value = globalSelector.value);
+    }
+
+    globalSelector.addEventListener('change', syncSubjectInputs);
+    window.addEventListener('DOMContentLoaded', syncSubjectInputs);
+</script>
+
 {% endblock %}
