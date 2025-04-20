@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}AI Canvas{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">AI Canvas</h1>
+
+    <form method="post" action="/canvas" class="mb-6">
+        <textarea name="text" rows="8" placeholder="Paste or write your text here..."
+                  class="w-full p-3 border rounded resize-none" required>{{ text or "" }}</textarea>
+
+        <div class="flex flex-wrap gap-4 mt-4">
+            <button name="action" value="summarize"
+                    class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
+                Summarize
+            </button>
+            <button name="action" value="generate_quiz"
+                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                Generate Quiz
+            </button>
+        </div>
+    </form>
+
+    {% if result %}
+        <div class="mt-6 bg-gray-100 border p-4 rounded">
+            <h2 class="text-xl font-semibold mb-2">AI Output:</h2>
+            <pre class="whitespace-pre-wrap">{{ result }}</pre>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

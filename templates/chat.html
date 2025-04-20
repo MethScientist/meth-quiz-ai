@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}AI Chat{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Chat with AI</h1>
+
+    <div id="chat-box" class="border rounded p-4 h-96 overflow-y-scroll bg-gray-50 mb-4">
+        {% for message in messages %}
+            <div class="mb-2">
+                <strong>{{ message.role.capitalize() }}:</strong>
+                <span>{{ message.content }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="post" action="/chat" class="flex space-x-2">
+        <input type="text" name="message" placeholder="Type your message..."
+               class="flex-grow border rounded p-2" autocomplete="off" required>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            Send
+        </button>
+    </form>
+</div>
+{% endblock %}

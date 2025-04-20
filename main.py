@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 from utils.file_parser import extract_text_from_pdf, extract_text_from_docx
-from utils.ai_utils import generate_quiz_from_text, analyze_student_text, teach_me_subject
+from utils.ai_utils import analyze_student_text, teach_me_subject
+from utils.ai_quiz import generate_quiz_from_text  # ✅ FIXED
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -40,35 +41,21 @@ async def generate(request: Request, subject: str = Form(...), file: UploadFile 
 
 
 @app.post("/chat", response_class=HTMLResponse)
-async def chat(
-    request: Request,
-    chat_file: UploadFile = File(...),
-    question: str = Form(...),
-    subject: str = Form(...)
-):
+async def chat(request: Request, chat_file: UploadFile = File(...), question: str = Form(...), subject: str = Form(...)):
     try:
         if chat_file.content_type == "application/pdf":
             text = extract_text_from_pdf(chat_file)
         elif chat_file.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             text = extract_text_from_docx(chat_file)
         else:
-            return templates.TemplateResponse("tools.html", {
-                "request": request,
-                "error": "Unsupported file type"
-            })
+            return templates.TemplateResponse("tools.html", {"request": request, "error": "Unsupported file type"})
 
         answer = teach_me_subject(subject, f"Leçon:\n{text}\n\nQuestion:\n{question}")
-        return templates.TemplateResponse("tools.html", {
-            "request": request,
-            "chat_response": answer
-        })
+        return templates.TemplateResponse("tools.html", {"request": request, "chat_response": answer})
 
     except Exception as e:
         print("Chat error:", str(e))
-        return templates.TemplateResponse("tools.html", {
-            "request": request,
-            "error": "An error occurred while answering your question."
-        })
+        return templates.TemplateResponse("tools.html", {"request": request, "error": "An error occurred while answering your question."})
 
 
 @app.post("/canevas", response_class=HTMLResponse)
@@ -79,8 +66,3 @@ async def canevas(request: Request, text: str = Form(...)):
     except Exception as e:
         print("Canevas error:", str(e))
         return templates.TemplateResponse("tools.html", {"request": request, "error": "An error occurred in text analysis."})
-
-
-@app.get("/subject-ai", response_class=HTMLResponse)
-async def subject_ai(request: Request):
-    return templates.TemplateResponse("subject_ai.html", {"request": request})

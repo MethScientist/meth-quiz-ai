@@ -3,18 +3,16 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("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")
+openai.api_key = os.getenv("OPENAI_API_KEY")  # ✅ USE SAFE ENV VAR
 
-def generate_quiz_from_text(text):
-    prompt = f"Generate a quiz with 5 multiple-choice questions based on the following lesson:\n\n{text}\n\nFormat the quiz nicely."
+def generate_quiz_from_text(text, subject):
+    role = f"Tu es un professeur de {subject}. Crée un quiz de 5 questions à choix multiples basé sur ce contenu."
 
     response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful quiz generator."},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": role},
+            {"role": "user", "content": f"Voici le cours :\n\n{text}"}
         ]
     )
-
     return response.choices[0].message.content.strip()
-
