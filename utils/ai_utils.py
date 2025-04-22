@@ -43,17 +43,19 @@ def chat_with_ai(system_role, prompt):
     )
     return response.choices[0].message.content.strip()
 
-def generate_quiz_from_text(text):
+def generate_quiz_from_text(text: str) -> str:
     prompt = (
-        "You are a helpful assistant that generates multiple-choice questions.\n"
-        "Create a quiz with 5 questions based on the following text. Each question should have 4 options, and indicate the correct answer.\n\n"
-        f"Text:\n{text}\n\n"
-        "Format:\n"
-        "Q1: ...?\nA. ...\nB. ...\nC. ...\nD. ...\nAnswer: ...\n\n"
+        "Generate a short quiz with 3 multiple-choice questions based on the following text:\n\n"
+        f"{text}\n\n"
+        "Each question should have 1 correct answer and 3 distractors."
     )
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        temperature=0.7,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response['choices'][0]['message']['content']
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+        )
+        return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"Error generating quiz: {str(e)}"

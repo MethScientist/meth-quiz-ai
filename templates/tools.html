@@ -1,19 +1,42 @@
 {% extends "base.html" %}
+{% block title %}AI Canvas{% endblock %}
+
 {% block content %}
-<main>
-  <h1>Select a Tool</h1>
-  <form action="/tools/" method="post" enctype="multipart/form-data">
-    <label for="file">Upload your document:</label>
-    <input type="file" name="file" required>
+<section class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-6">AI Canvas</h1>
+    <p class="text-gray-600 mb-6">Paste your text below, and let our AI help you analyze it or create quizzes instantly.</p>
 
-    <label for="tool">Choose a tool:</label>
-    <select name="tool" id="tool">
-      <option value="quiz">Generate Quiz</option>
-      <option value="chat">Chat with File</option>
-      <option value="canvas">Text Analyzer</option>
-    </select>
+    <form method="post" action="/canvas">
+      <textarea
+        name="text"
+        rows="10"
+        class="w-full p-4 text-gray-700 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none mb-6"
+        placeholder="Enter your educational content here...">{{ text or "" }}</textarea>
 
-    <button type="submit">Run Tool</button>
-  </form>
-</main>
+      <div class="flex flex-wrap gap-4">
+        <button
+          name="action"
+          value="summarize"
+          class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200 shadow">
+          🧠 Summarize
+        </button>
+
+        <button
+          name="action"
+          value="generate_quiz"
+          class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200 shadow">
+          📝 Generate Quiz
+        </button>
+      </div>
+    </form>
+
+    {% if result %}
+    <div class="mt-10 bg-gray-100 border border-gray-300 rounded-xl p-6">
+      <h2 class="text-2xl font-bold text-gray-700 mb-4">📋 AI Output</h2>
+      <pre class="whitespace-pre-wrap text-gray-800">{{ result }}</pre>
+    </div>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

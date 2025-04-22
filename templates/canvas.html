@@ -2,30 +2,41 @@
 {% block title %}AI Canvas{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">AI Canvas</h1>
+<section class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-6">AI Canvas</h1>
+    <p class="text-gray-600 mb-6">Paste your text below, and let our AI help you analyze it or create quizzes instantly.</p>
 
-    <form method="post" action="/canvas" class="mb-6">
-        <textarea name="text" rows="8" placeholder="Paste or write your text here..."
-                  class="w-full p-3 border rounded resize-none" required>{{ text or "" }}</textarea>
+    <form method="post" action="/canvas">
+      <textarea
+        name="text"
+        rows="10"
+        class="w-full p-4 text-gray-700 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none mb-6"
+        placeholder="Enter your educational content here...">{{ text or "" }}</textarea>
 
-        <div class="flex flex-wrap gap-4 mt-4">
-            <button name="action" value="summarize"
-                    class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
-                Summarize
-            </button>
-            <button name="action" value="generate_quiz"
-                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                Generate Quiz
-            </button>
-        </div>
+      <div class="flex flex-wrap gap-4">
+        <button
+          name="action"
+          value="summarize"
+          class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200 shadow">
+          🧠 Summarize
+        </button>
+
+        <button
+          name="action"
+          value="generate_quiz"
+          class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200 shadow">
+          📝 Generate Quiz
+        </button>
+      </div>
     </form>
 
     {% if result %}
-        <div class="mt-6 bg-gray-100 border p-4 rounded">
-            <h2 class="text-xl font-semibold mb-2">AI Output:</h2>
-            <pre class="whitespace-pre-wrap">{{ result }}</pre>
-        </div>
+    <div class="mt-10 bg-gray-100 border border-gray-300 rounded-xl p-6">
+      <h2 class="text-2xl font-bold text-gray-700 mb-4">📋 AI Output</h2>
+      <pre class="whitespace-pre-wrap text-gray-800">{{ result }}</pre>
+    </div>
     {% endif %}
-</div>
+  </div>
+</section>
 {% endblock %}
