@@ -1,85 +1,126 @@
-from fastapi import FastAPI, Request, UploadFile, File
-from fastapi.responses import JSONResponse, RedirectResponse
+import os
+from fastapi import FastAPI, UploadFile, Form, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from pathlib import Path
-import openai
-import os
 from dotenv import load_dotenv
-from utils.ai_utils import generate_quiz_from_text
-from utils.file_parser import extract_text_from_pdf, extract_text_from_docx
+import openai
+import shutil
+import fitz  # PyMuPDF
 
-# Load .env
+# Load environment variables
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# FastAPI app
+# Initialize FastAPI app
 app = FastAPI()
 
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Static & Template paths
-BASE_DIR = Path(__file__).resolve().parent
-app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
-templates = Jinja2Templates(directory=BASE_DIR / "templates")
+# Static files and templates
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-# ======================= ROUTES ======================= #
+# Subject roles
+def get_subject_roles():
+    return {
+        "français": "Tu es un professeur de français.",
+        "anglais": "You are an English teacher.",
+        "arabe": "أنت أستاذ في اللغة العربية.",
+        "espagnol": "Eres un profesor de español.",
+        "allemand": "Du bist ein Deutschlehrer.",
+        "mathématique": "Tu es un professeur de mathématiques.",
+        "physique": "Tu es un professeur de physique.",
+        "svt": "Tu es un professeur de sciences de la vie et de la terre.",
+        "histoire": "Tu es un professeur d'histoire.",
+        "géographie": "Tu es un professeur de géographie.",
+        "emc": "Tu es un professeur d'Enseignement Moral et Civique.",
+        "enseignement_scientifique_physique": "Tu es un professeur de la partie physique de l'enseignement scientifique.",
+        "enseignement_scientifique_science": "Tu es un professeur de la partie sciences naturelles de l'enseignement scientifique."
+    }
 
-@app.get("/")
-async def home(request: Request):
+# AI chat interaction
+def chat_with_ai(system_role, prompt):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_role},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content.strip()
+
+# Generate quiz from text
+def generate_quiz_from_text(text: str) -> str:
+    prompt = (
+        "Génère un quiz de 3 questions à choix multiples à partir du texte suivant :\n\n"
+        f"{text}\n\n"
+        "Chaque question doit avoir une seule bonne réponse et trois distracteurs."
+    )
+    return chat_with_ai("Tu es un assistant pédagogique.", prompt)
+
+# Generate notes and exercises from lesson
+def generate_notes_and_exercises(lesson_text):
+    prompt = f"""
+Tu es un assistant éducatif. À partir du texte de la leçon suivant, génère :
+1. Des notes d'étude concises
+2. Trois exercices
+3. Les solutions des exercices
+
+Leçon :
+{lesson_text}
+
+## Notes
+## Exercices
+## Solutions
+"""
+    return chat_with_ai("Assistant éducatif", prompt)
+
+# Extract text from uploaded PDF
+def extract_text_from_pdf(file_path):
+    text = ""
+    with fitz.open(file_path) as doc:
+        for page in doc:
+            text += page.get_text()
+    return text
+
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/chatbot")
-async def get_chatbot_page(request: Request):
-    return templates.TemplateResponse("chatbot.html", {"request": request})
-
 @app.post("/chat")
-async def chat(request: Request):
-    data = await request.json()
-    message = data.get("message")
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": message}],
-            temperature=0.7,
-        )
-        reply = response.choices[0].message.content
-        return JSONResponse(content={"response": reply})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+def process_chat(subject: str = Form(...), text: str = Form(...)):
+    role = get_subject_roles().get(subject, "Tu es un professeur expert.")
+    answer = chat_with_ai(role, text)
+    return JSONResponse({"response": answer})
 
-@app.post("/generate_quiz")
-async def generate_quiz(request: Request):
-    data = await request.json()
-    text = data.get("text")
-    try:
-        quiz = generate_quiz_from_text(text)
-        return JSONResponse(content={"quiz": quiz})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+@app.post("/upload")
+def upload_file(subject: str = Form(...), file: UploadFile = Form(...)):
+    file_location = f"temp/{file.filename}"
+    os.makedirs("temp", exist_ok=True)
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-@app.post("/upload_lesson")
-async def upload_lesson(file: UploadFile = File(...)):
-    try:
-        if file.filename.endswith(".pdf"):
-            text = extract_text_from_pdf(file)
-        elif file.filename.endswith(".docx"):
-            text = extract_text_from_docx(file)
-        else:
-            contents = await file.read()
-            text = contents.decode("utf-8")
+    extracted_text = extract_text_from_pdf(file_location)
+    role = get_subject_roles().get(subject, "Tu es un professeur expert.")
+    summary = chat_with_ai(role, extracted_text)
 
-        # Redirect to chatbot with prefilled content
-        prefill_text = text.replace("\n", " ").replace("\r", " ").strip().replace(" ", "%20")[:1000]  # limit
-        return RedirectResponse(url=f"/chatbot?prefill={prefill_text}", status_code=303)
+    return JSONResponse({"summary": summary, "extracted_text": extracted_text})
 
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+@app.post("/quiz")
+def create_quiz(text: str = Form(...)):
+    quiz = generate_quiz_from_text(text)
+    return JSONResponse({"quiz": quiz})
+
+@app.post("/notes")
+def create_notes(text: str = Form(...)):
+    content = generate_notes_and_exercises(text)
+    return JSONResponse({"content": content})

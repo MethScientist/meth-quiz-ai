@@ -1,135 +1,100 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Edu Side - Accueil</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #121212;
-      color: #f1f1f1;
-    }
-    header {
-      background-color: #1f1f1f;
-      color: #ffffff;
-      padding: 1rem 2rem;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 1.5rem;
-      background: #1e1e1e;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-    h2 {
-      color: #ffffff;
-      margin-bottom: 0.5rem;
-    }
-    .subject-section {
-      margin-bottom: 2rem;
-    }
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-    .btn {
-      display: inline-block;
-      padding: 0.7rem 1.4rem;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 0 10px rgba(0,123,255,0.3);
-    }
-    .btn:hover {
-      background-color: #0056b3;
-      transform: translateY(-2px);
-    }
-    .output-box {
-      margin-top: 2rem;
-      background: #2a2a2a;
-      padding: 1rem;
-      border-radius: 10px;
-      white-space: pre-wrap;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plateforme Éducative</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
 </head>
-<body>
-  <header>
-    <h1>Edu Side</h1>
-    <p>Votre assistant scolaire intelligent ✨</p>
-  </header>
+<body class="bg-gray-100 font-sans">
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="text-xl font-bold text-blue-600">EduPlatform</div>
+      <ul class="flex space-x-6">
+        <li><a href="#home" class="text-gray-700 hover:text-blue-500">Accueil</a></li>
+        <li><a href="#subjects" class="text-gray-700 hover:text-blue-500">Matières</a></li>
+        <li><a href="#upload" class="text-gray-700 hover:text-blue-500">Fichier</a></li>
+        <li><a href="#quiz" class="text-gray-700 hover:text-blue-500">Quiz</a></li>
+        <li><a href="#notes" class="text-gray-700 hover:text-blue-500">Notes</a></li>
+        <li><a href="#chatbot" class="text-gray-700 hover:text-blue-500">Chatbot</a></li>
+      </ul>
+    </div>
+  </nav>
 
-  <div class="container">
-    <div class="subject-section">
-      <h2>Générer un résumé + exercices</h2>
-      <form id="upload-form">
-        <input type="file" name="file" required>
-        <button class="btn" type="submit">📄 Envoyer un document</button>
+  <section id="home" class="py-12 text-center">
+    <h1 class="text-4xl font-bold text-blue-700 mb-4">Bienvenue sur votre plateforme éducative</h1>
+    <p class="text-gray-600 text-lg">Apprenez, révisez et progressez avec des outils puissants et adaptés à chaque matière.</p>
+  </section>
+
+  <section id="subjects" class="bg-white py-10">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4 text-center">Choisissez une matière</h2>
+      <form method="POST" action="/process">
+        <select name="subject" class="block w-full px-4 py-2 border rounded mb-4">
+          <option value="français">Français</option>
+          <option value="anglais">Anglais</option>
+          <option value="arabe">Arabe</option>
+          <option value="espagnol">Espagnol</option>
+          <option value="allemand">Allemand</option>
+          <option value="mathématique">Mathématique</option>
+          <option value="physique">Physique</option>
+          <option value="science de la vie et de la terre">SVT</option>
+          <option value="histoire">Histoire</option>
+          <option value="géographie">Géographie</option>
+          <option value="Enseignement Moral et Civique">EMC</option>
+          <option value="enseignement scientique - physique">Enseignement scientifique - Physique</option>
+          <option value="enseignement scientique - science">Enseignement scientifique - Science</option>
+        </select>
+        <textarea name="text_or_question" rows="4" placeholder="Entrez votre question ou texte ici..." class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600">Envoyer</button>
       </form>
-
-      <div id="output" class="output-box" style="display:none;"></div>
-      <div style="margin-top: 1rem; display: flex; gap: 1rem;">
-        <a id="download-link" class="btn" style="display:none;">💾 Télécharger</a>
-        <a id="chat-link" href="/chatbot" class="btn" style="display:none;">🔁 Ouvrir dans le Chatbot</a>
-      </div>
     </div>
+  </section>
 
-    <div class="subject-section">
-      <h2>Français</h2>
-      <div class="button-group">
-        <a href="/chatbot?mode=dissertation" class="btn">📝 Écrit — Dissertation</a>
-        <a href="/chatbot?mode=commentaire" class="btn">📝 Écrit — Commentaire composé</a>
-      </div>
-      <div class="button-group">
-        <a href="/chatbot?mode=analyse" class="btn">🎤 Oral — Analyse linéaire</a>
-      </div>
+  <section id="upload" class="py-10 bg-gray-50">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4 text-center">Analyser un document</h2>
+      <form action="/analyze" method="POST" enctype="multipart/form-data" class="flex flex-col items-center">
+        <input type="file" name="file" class="mb-4" required />
+        <input type="text" name="user_question" placeholder="Que voulez-vous savoir à partir du document ?" class="w-full px-4 py-2 border rounded mb-4" required>
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Analyser</button>
+      </form>
     </div>
-  </div>
+  </section>
 
-  <script>
-    const form = document.getElementById("upload-form");
-    const outputBox = document.getElementById("output");
-    const downloadLink = document.getElementById("download-link");
-    const chatLink = document.getElementById("chat-link");
+  <section id="quiz" class="bg-white py-10">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4 text-center">Générer un Quiz</h2>
+      <form method="POST" action="/quiz">
+        <textarea name="text" rows="4" placeholder="Entrez un texte pour générer un quiz..." class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="bg-purple-500 text-white px-4 py-2 mt-4 rounded hover:bg-purple-600">Générer</button>
+      </form>
+    </div>
+  </section>
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
+  <section id="notes" class="py-10 bg-gray-50">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4 text-center">Créer des notes et exercices</h2>
+      <form method="POST" action="/generate_notes">
+        <textarea name="lesson_text" rows="4" placeholder="Collez ici votre cours..." class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="bg-yellow-500 text-white px-4 py-2 mt-4 rounded hover:bg-yellow-600">Générer</button>
+      </form>
+    </div>
+  </section>
 
-      const res = await fetch("/upload_lesson", {
-        method: "POST",
-        body: formData
-      });
+  <section id="chatbot" class="py-10">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4 text-center">Chatbot éducatif</h2>
+      <form method="POST" action="/chat">
+        <textarea name="message" rows="4" placeholder="Posez votre question ici..." class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="bg-blue-700 text-white px-4 py-2 mt-4 rounded hover:bg-blue-800">Envoyer</button>
+      </form>
+    </div>
+  </section>
 
-      const data = await res.json();
-      if (data.content) {
-        outputBox.textContent = data.content;
-        outputBox.style.display = "block";
-
-        const blob = new Blob([data.content], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        downloadLink.href = url;
-        downloadLink.download = "ai_output.txt";
-        downloadLink.style.display = "inline-block";
-
-        const queryText = encodeURIComponent(data.content);
-        chatLink.href = `/chatbot?prefill=${queryText}`;
-        chatLink.style.display = "inline-block";
-      } else {
-        outputBox.textContent = "Une erreur est survenue.";
-        outputBox.style.display = "block";
-      }
-    });
-  </script>
+  <footer class="text-center text-sm py-6 text-gray-500 mt-10">
+    © 2025 EduPlatform. Tous droits réservés.
+  </footer>
 </body>
 </html>
