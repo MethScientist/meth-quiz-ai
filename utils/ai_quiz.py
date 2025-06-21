@@ -1,18 +1,12 @@
-import openai
-import os
-from dotenv import load_dotenv
+from utils.file_parser import read_lesson_file
+from utils.ai_utils import generate_notes_and_exercises
 
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")  # ✅ USE SAFE ENV VAR
+def process_file(file_path):
+    lesson_text = read_lesson_file(file_path)
+    return generate_notes_and_exercises(lesson_text)
 
-def generate_quiz_from_text(text, subject):
-    role = f"Tu es un professeur de {subject}. Crée un quiz de 5 questions à choix multiples basé sur ce contenu."
+if __name__ == "__main__":
+    file_path = "utils/lesson_files/sample_lesson.pdf"  # Your test file
+    output = process_file(file_path)
+    print(output)
 
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": role},
-            {"role": "user", "content": f"Voici le cours :\n\n{text}"}
-        ]
-    )
-    return response.choices[0].message.content.strip()

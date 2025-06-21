@@ -90,6 +90,13 @@
     const chatForm = document.getElementById("chat-form");
     const messageInput = document.getElementById("message-input");
 
+    // Prefill message input if ?prefill=... is in URL
+    const params = new URLSearchParams(window.location.search);
+    const prefill = params.get("prefill");
+    if (prefill) {
+      messageInput.value = prefill;
+    }
+
     chatForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const userMessage = messageInput.value;

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, UploadFile, File
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +20,7 @@ app = FastAPI()
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust for security
+    allow_origins=["*"],  # Adjust for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,6 +77,9 @@ async def upload_lesson(file: UploadFile = File(...)):
             contents = await file.read()
             text = contents.decode("utf-8")
 
-        return JSONResponse(content={"content": text})
+        # Redirect to chatbot with prefilled content
+        prefill_text = text.replace("\n", " ").replace("\r", " ").strip().replace(" ", "%20")[:1000]  # limit
+        return RedirectResponse(url=f"/chatbot?prefill={prefill_text}", status_code=303)
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

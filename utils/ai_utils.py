@@ -1,4 +1,4 @@
-# utils/ai_utils.py
+"""# utils/ai_utils.py
 import openai
 import os
 from dotenv import load_dotenv
@@ -58,4 +58,31 @@ def generate_quiz_from_text(text: str) -> str:
         )
         return response["choices"][0]["message"]["content"]
     except Exception as e:
-        return f"Error generating quiz: {str(e)}"
+        return f"Error generating quiz: {str(e)}"""
+# 2nd choice essaie. calls OpenAI 
+import openai
+import os
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def generate_notes_and_exercises(lesson_text):
+    prompt = f"""
+You are an educational assistant. Based on the following lesson, generate:
+1. Concise study notes
+2. Three exercises
+3. Solutions to the exercises
+
+Lesson:
+{lesson_text}
+
+## Notes
+## Exercises
+## Solutions
+"""
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1000,
+        temperature=0.7
+    )
+    return response['choices'][0]['message']['content']

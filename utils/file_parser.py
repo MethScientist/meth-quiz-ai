@@ -1,17 +1,36 @@
-# utils/file_parser.py
 import fitz  # PyMuPDF
-import docx
+import pytesseract
+from PIL import Image
+from docx import Document
 
-def extract_text_from_pdf(file):
-    try:
-        doc = fitz.open(stream=file.file.read(), filetype="pdf")
-        return "\n".join(page.get_text() for page in doc)
-    except Exception as e:
-        return f"Error reading PDF: {e}"
+def read_txt(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()
 
-def extract_text_from_docx(file):
-    try:
-        document = docx.Document(file.file)
-        return "\n".join(para.text for para in document.paragraphs)
-    except Exception as e:
-        return f"Error reading DOCX: {e}"
+def read_pdf(path):
+    text = ""
+    with fitz.open(path) as doc:
+        for page in doc:
+            text += page.get_text()
+    return text
+
+def read_docx(path):
+    doc = Document(path)
+    return "\n".join(p.text for p in doc.paragraphs)
+
+def read_image(path):
+    img = Image.open(path)
+    return pytesseract.image_to_string(img)
+
+def read_lesson_file(path):
+    path = path.lower()
+    if path.endswith(".txt"):
+        return read_txt(path)
+    elif path.endswith(".pdf"):
+        return read_pdf(path)
+    elif path.endswith(".docx"):
+        return read_docx(path)
+    elif path.endswith((".png", ".jpg", ".jpeg")):
+        return read_image(path)
+    else:
+        return "Unsupported file format."
